@@ -1,10 +1,10 @@
 # Initial Fedora VM setup 
 
 0. Update the repositories.
-sudo dnf update -y 
+`sudo dnf update -y `
 
 1. Install Cockpit Podman and nano (sorry!)
-sudo dnf install -y cockpit-podman nano
+`sudo dnf install -y cockpit-podman nano`
 
 2. Change Cockpit Port (Lyrion will need 9090)
 

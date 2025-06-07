@@ -1,12 +1,12 @@
 # Initial Fedora VM setup 
 
-0. Update the repositories.
+### 0. Update the repositories.
 `sudo dnf update -y `
 
-1. Install Cockpit Podman and nano (sorry!)
+### 1. Install Cockpit Podman and nano (sorry!)
 `sudo dnf install -y cockpit-podman nano`
 
-2. Change Cockpit Port (Lyrion will need 9090)
+### 2. Change Cockpit Port (Lyrion will need 9090)
 
 First, we'll need to make the directory for the configuration file.
 `sudo mkdir /etc/systemd/system/cockpit.socket.d/`
@@ -20,7 +20,7 @@ ListenStream=
 ListenStream=9002
 ```
 
-3. Update SELinux Policy, otherwise it won't allow us to run Cockpit on a new port.
+### 3. Update SELinux Policy, otherwise it won't allow us to run Cockpit on a new port.
 `sudo semanage port -m -t websm_port_t -p tcp 9002`
 
 ```
@@ -28,21 +28,23 @@ sudo systemctl daemon-reload
 sudo systemctl restart cockpit.socket
 ```
 
-4. Update firewalld
+### 4. Update firewalld
 ```
 sudo firewall-cmd --permanent --zone=FedoraServer --add-port=9002/tcp
 sudo firewall-cmd --permanent --zone=FedoraServer --remove-port=9090/tcp
 sudo firewall-cmd --reload
 ```
 
-5. Move to passwordless login.
+### 5. Move to passwordless login.
 I really like the Yubikey hardware keys for storing my SSH keys. This is where I'd usually opt for authentication that way.
 
-6. Setup containers
+### 6. Setup containers
  - Mosquito
+ - MariaDB
  - Lyrion Media Server
  - Piper
  - Whisper
+ - TVHeadEnd
  - Valetudo2PNG
 
 We're going to create an 'apps' directory in the home folder.
@@ -51,8 +53,8 @@ We're going to create an 'apps' directory in the home folder.
 
 Because Podman runs containers rootless, containers run as the user rather than root. This means we need to change the ownership to the user account (e.g.) `sudo chown cameron -R mqtt` and then run (e.g.) `podman unshare chown 200:200 -R mqtt` to allow Podman to access the dirs.
 
-### Mosquito
-Mosquito is an MQTT broker. It's pretty neat. I've used ZHA, DeCONZ and Zigbee2MQTT over the years for controlling Zigbee based devices. ZHA and Zigbee2MQTT are (in my controversial opinion at least) about on par as far as features go. Because I already run an MQTT broker for other services and opting for Zigbee2MQTT gives me the opportunity to position the coordinator more centrally, I use it over ZHA.
+## Mosquito
+Mosquito is an MQTT broker. It's pretty neat. I've used ZHA, DeCONZ and Zigbee2MQTT over the years for controlling Zigbee based devices. ZHA and Zigbee2MQTT are (in my controversial opinion at least) about on par as far as features go. Because I already run an MQTT broker for other services and opting for Zigbee2MQTT gives me the opportunity to position the coordinator more centrally, I use it over ZHA. You can fight that out in the comments.
 
 `mkdir ~/apps/mqtt/config ~/apps/mqtt/data ~/apps/mqtt/log`
 
@@ -101,3 +103,38 @@ Make sure MQTT is added:
 `sudo firewall-cmd --reload`
 
 Usually at this point, I'd confirm the container boots up fine from Cockpit and add it to Home Assistant. If that's good, I'll move onto the next container. 
+
+## MariaDB
+MariaDB is a drop-in replacement for MySQL. It's my favourite of the relational databases to work with. I host this largely for Home Assistant and keep the container here in case I choose to use MariaDB for other services I self-host. SQLite is probably enough for 90% of people.
+
+Like other containers, we'll create a directory first. Then chown/unshare to allow Podman to access.
+
+`mkdir ~/apps/sql/`
+
+And then we'll spin up a container. 
+
+```
+podman run -d
+	--hostname=sql.local
+	--name=sql
+	--restart=unless-stopped
+        --env MARIADB_RANDOM_ROOT_PASSWORD=1
+	--env MARIADB_USER=secret_user
+	--env MARIADB_PASSWORD=secret_pass
+	--env MARIADB_DATABASE=db_haos
+	-p 3306:3306
+	-v "/home/../apps/sql":"/var/lib/mysql":Z
+docker.io/mariadb:lts
+```
+
+Make sure SQL is added to the firewall: 
+`sudo firewall-cmd --permanent --zone=FedoraServer --add-service=mysql`
+`sudo firewall-cmd --reload`
+
+Bing, bang. Done! Add the config into Home Assistant and keep on chugging along. This is formatted like: 
+
+```
+# Use locally hosted DB server rather than SQLite
+recorder:
+  db_url: mysql://user:password@host/db_name?charset=utf8mb4 (use a secret!)
+```

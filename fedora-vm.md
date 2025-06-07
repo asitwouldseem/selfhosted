@@ -142,7 +142,7 @@ recorder:
 ```
 
 # ValetudoPNG
-I use [Valetudo](https://valetudo.cloud/)) firmware on my robot vacuum. To display the map, we need to run a seperate service to generate the neccesary data for Home Assistant. There's a few ways to do this, but this is my preferred approach. We should be on a roll now...
+I use [Valetudo](https://valetudo.cloud/) firmware on my robot vacuum. To display the map, we need to run a seperate service to generate the neccesary data for Home Assistant. There's a few ways to do this, but this is my preferred approach. We should be on a roll now...
 
 Create your directory, [touch the yaml](https://github.com/erkexzcx/valetudopng/blob/main/config.example.yml), chown/unshare, etc!
 

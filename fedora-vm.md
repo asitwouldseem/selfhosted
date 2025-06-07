@@ -93,7 +93,6 @@ podman run -d
 	--name=mqtt
 	--pod mqtt
 	--restart=unless-stopped
-	-p 1883:1883
 	-v "/home/../apps/mqtt/config":"/mosquitto/config":Z
 	-v "/home/../apps/mqtt/data":"/mosquitto/data":Z
 	-v "/home/../apps/mqtt/log":"/mosquitto/log":Z

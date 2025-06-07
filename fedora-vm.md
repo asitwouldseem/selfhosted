@@ -136,5 +136,5 @@ Bing, bang. Done! Add the config into Home Assistant and keep on chugging along.
 ```
 # Use locally hosted DB server rather than SQLite
 recorder:
-  db_url: mysql://user:password@host/db_name?charset=utf8mb4 (use a secret!)
+  db_url: mysql://user:password@SERVER_IP/DB_NAME?charset=utf8mb4 (use a secret!)
 ```

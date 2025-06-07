@@ -41,11 +41,9 @@ I really like the Yubikey hardware keys for storing my SSH keys. This is where I
 ### 6. Setup containers
  - Mosquito
  - MariaDB
- - Lyrion Media Server
- - Piper
- - Whisper
- - TVHeadEnd
  - Valetudo2PNG
+ - Lyrion Media Server
+ - TVHeadEnd
 
 We're going to create an 'apps' directory in the home folder.
 
@@ -55,6 +53,10 @@ Because Podman runs containers rootless, containers run as the user rather than 
 
 ## Mosquito
 Mosquito is an MQTT broker. It's pretty neat. I've used ZHA, DeCONZ and Zigbee2MQTT over the years for controlling Zigbee based devices. ZHA and Zigbee2MQTT are (in my controversial opinion at least) about on par as far as features go. Because I already run an MQTT broker for other services and opting for Zigbee2MQTT gives me the opportunity to position the coordinator more centrally, I use it over ZHA. You can fight that out in the comments.
+
+Because we have multiple containers that need to chat locally. Create a Pod within Cockpit that respects: 
+- 0.0.0.0:1883 → 1883/tcp (MQTT)
+- 0.0.0.0:3000 → 3000/tcp (ValetudoPNG)
 
 `mkdir ~/apps/mqtt/config ~/apps/mqtt/data ~/apps/mqtt/log`
 
@@ -88,8 +90,8 @@ Give the user a password. Then, change ownership / unshare. And run the followin
 
 ```
 podman run -d
-	--hostname=mqtt.local
 	--name=mqtt
+	--pod mqtt
 	--restart=unless-stopped
 	-p 1883:1883
 	-v "/home/../apps/mqtt/config":"/mosquitto/config":Z
@@ -138,3 +140,29 @@ Bing, bang. Done! Add the config into Home Assistant and keep on chugging along.
 recorder:
   db_url: mysql://user:password@SERVER_IP/DB_NAME?charset=utf8mb4 (use a secret!)
 ```
+
+# ValetudoPNG
+I use [Valetudo](https://valetudo.cloud/)) firmware on my robot vacuum. To display the map, we need to run a seperate service to generate the neccesary data for Home Assistant. There's a few ways to do this, but this is my preferred approach. We should be on a roll now...
+
+Create your directory, [touch the yaml](https://github.com/erkexzcx/valetudopng/blob/main/config.example.yml), chown/unshare, etc!
+
+```
+podman run 
+    -d
+    -v "/home/../apps/valetudopng/config.yml":"/config.yml":z
+    --pod mqtt
+    --name=valetudopng
+    --restart unless-stopped
+    ghcr.io/erkexzcx/valetudopng:latest
+```
+
+```
+sudo firewall-cmd --permanent --zone=FedoraServer --add-port=3000/tcp
+sudo firewall-cmd --reload
+```
+
+Woohoo!
+
+# Lyrion Media Server
+Because I use Fedora Server, SELinux runs by default. To allow SMB shares to be mapped inside Podman, we need to first allow it: 
+`sudo setsebool virt_use_samba on`

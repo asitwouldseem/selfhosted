@@ -142,6 +142,27 @@ recorder:
   db_url: mysql://user:password@SERVER_IP/DB_NAME?charset=utf8mb4 (use a secret!)
 ```
 
+# InfluxDB
+InfluxDB is a time-series optimised database. At the moment I only use it for long-term Home Assistant data, but long-term I hope to load more things into here for pretty graphs and things.
+
+```
+podman run
+    -d
+    --hostname=influxdb.local
+    --name=influxdb
+    --restart=unless-stopped
+    -v "/home/../apps/influxdb/data":"/var/lib/influxdb2":Z
+    -v "/home/../apps/influxdb/config":"/etc/influxdb2":Z
+    -p 8086:8086
+    docker.io/influxdb:2
+```
+
+And we'll open up the port so anything in my services VLAN can use the database.
+```
+sudo firewall-cmd --permanent --zone=FedoraServer --add-port=8086/tcp
+sudo firewall-cmd --reload
+```
+
 # ValetudoPNG
 I use [Valetudo](https://valetudo.cloud/) firmware on my robot vacuum. To display the map, we need to run a seperate service to generate the neccesary data for Home Assistant. There's a few ways to do this, but this is my preferred approach. We should be on a roll now...
 
@@ -164,27 +185,17 @@ sudo firewall-cmd --reload
 
 Woohoo!
 
-# InfluxDB
-InfluxDB is a time-series optimised database. At the moment I only use it for long-term Home Assistant data, but long-term I hope to load more things into here for pretty graphs and things.
+# Lyrion Media Server
+Because I use Fedora Server, SELinux runs by default. To allow SMB shares to be mapped inside Podman, we need to first allow it: 
+`sudo setsebool virt_use_samba on`
+
+# Nebula Sync
+This is a handy little tool to sync multiple pi-holes across the network. Let's use a dotenv file because #securitay!
 
 ```
 podman run
     -d
-    --hostname=influxdb.local
-    --name=influxdb
-    --restart=unless-stopped
-    -v "/home/../apps/influxdb/data":"/var/lib/influxdb2":Z
-    -v "/home/../apps/influxdb/config":"/etc/influxdb2":Z
-    -p 8086:8086
-    docker.io/influxdb:2
+    --name nebula-sync
+    --env-file "/home/../apps/nebulasync/.env"
+    ghcr.io/lovelaze/nebula-sync:latest
 ```
-
-And we'll open up the port so anything in my services VLAN can use the database.
-```
-sudo firewall-cmd --permanent --zone=FedoraServer --add-port=8086/tcp
-sudo firewall-cmd --reload
-```
-
-# Lyrion Media Server
-Because I use Fedora Server, SELinux runs by default. To allow SMB shares to be mapped inside Podman, we need to first allow it: 
-`sudo setsebool virt_use_samba on`

@@ -176,7 +176,7 @@ podman run
     -v "/home/../apps/influxdb/data":"/var/lib/influxdb2":Z
     -v "/home/../apps/influxdb/config":"/etc/influxdb2":Z
     -p 8086:8086
-    docker.io/influxdb:core
+    docker.io/influxdb:2
 ```
 
 And we'll open up the port so anything in my services VLAN can use the database.

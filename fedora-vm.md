@@ -199,3 +199,5 @@ podman run
     --env-file "/home/../apps/nebulasync/.env"
     ghcr.io/lovelaze/nebula-sync:latest
 ```
+
+Because I use app passwords, I need to enable `webserver.api.app_sudo` on the replica piholes I am syncing to.

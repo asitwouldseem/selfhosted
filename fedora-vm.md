@@ -41,6 +41,8 @@ I really like the Yubikey hardware keys for storing my SSH keys. This is where I
 ### 6. Setup containers
  - Mosquito
  - MariaDB
+ - InfluxDB
+ - Nebula Sync
  - Valetudo2PNG
  - Lyrion Media Server
  - TVHeadEnd
@@ -161,6 +163,27 @@ sudo firewall-cmd --reload
 ```
 
 Woohoo!
+
+# InfluxDB
+InfluxDB is a time-series optimised database. At the moment I only use it for long-term Home Assistant data, but long-term I hope to load more things into here for pretty graphs and things.
+
+```
+podman run
+    -d
+    --hostname=influxdb.local
+    --name=influxdb
+    --restart=unless-stopped
+    -v "/home/../apps/influxdb/data":"/var/lib/influxdb2":Z
+    -v "/home/../apps/influxdb/config":"/etc/influxdb2":Z
+    -p 8086:8086
+    docker.io/influxdb:core
+```
+
+And we'll open up the port so anything in my services VLAN can use the database.
+```
+sudo firewall-cmd --permanent --zone=FedoraServer --add-port=8086/tcp
+sudo firewall-cmd --reload
+```
 
 # Lyrion Media Server
 Because I use Fedora Server, SELinux runs by default. To allow SMB shares to be mapped inside Podman, we need to first allow it: 

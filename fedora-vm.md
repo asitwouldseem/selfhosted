@@ -178,18 +178,15 @@ We also need to allow devices to be used by containers:
 Then run the container:
 
 ```
-podman run -d
+sudo podman run -d
   --hostname=tvh.local
   --name=tvh   
   --device /dev/dvb
   -e TZ="Australia/Brisbane"
   -p 9981:9981
   -p 9982:9982 
-  -v "/home/../apps/tvh":"/var/lib/tvheadend":Z   
-  -v "/home/../apps/tvh/recordings":"/var/lib/tvheadend/recordings":Z
-  --user $(id -u):$(id -g)
-  --tty
-  --userns=host
+  -v "/home/cameron/apps/tvh":"/var/lib/tvheadend":Z   
+  -v "/home/cameron/apps/tvh/recordings":"/var/lib/tvheadend/recordings":Z
   --restart unless-stopped
  ghcr.io/tvheadend/tvheadend:master-debian
   -c /var/lib/tvheadend --noacl

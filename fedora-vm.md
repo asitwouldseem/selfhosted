@@ -170,7 +170,12 @@ Install [firmware](https://gist.github.com/ProfYaffle/654aa5da1983d651d367).
 cd /lib/firmware
 wget https://github.com/CoreELEC/dvb-firmware/blob/master/firmware/dvb-demod-si2168-d60-01.fw
 ```
-Reboot, setup folders for TVHeadEnd, open 9981 and 9982. Then run the container:
+Reboot, setup folders for TVHeadEnd, open 9981 and 9982. 
+
+We also need to allow devices to be used by containers: 
+`sudo setsebool -P container_use_devices=true`
+
+Then run the container:
 
 ```
 podman run -d

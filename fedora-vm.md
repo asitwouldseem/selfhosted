@@ -163,37 +163,6 @@ sudo firewall-cmd --reload
 
 Woohoo!
 
-# TV Head End
-
-Install [firmware](https://gist.github.com/ProfYaffle/654aa5da1983d651d367).
-```
-cd /lib/firmware
-wget https://github.com/CoreELEC/dvb-firmware/blob/master/firmware/dvb-demod-si2168-d60-01.fw
-```
-Reboot, setup folders for TVHeadEnd, open 9981 and 9982. 
-
-We also need to allow devices to be used by containers: 
-`sudo setsebool -P container_use_devices=true`
-
-Then run the container:
-
-```
-sudo podman run -d
-  --hostname=tvh.local
-  --name=tvh   
-  --device /dev/dvb
-  -e TZ="Australia/Brisbane"
-  -p 9981:9981
-  -p 9982:9982 
-  -v "/home/cameron/apps/tvh":"/var/lib/tvheadend":Z   
-  -v "/home/cameron/apps/tvh/recordings":"/var/lib/tvheadend/recordings":Z
-  --restart unless-stopped
- ghcr.io/tvheadend/tvheadend:master-debian
-  -c /var/lib/tvheadend --noacl
-```
-
-Remember to remove --noacl once you'e set password, etc.
-
 # Lyrion Media Server
 Because I use Fedora Server, SELinux runs by default. To allow SMB shares to be mapped inside Podman, we need to first allow it: 
 `sudo setsebool virt_use_samba on`

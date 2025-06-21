@@ -187,7 +187,10 @@ podman run -d
   --userns=host
   --restart unless-stopped
  ghcr.io/tvheadend/tvheadend:master-debian
+  -c /var/lib/tvheadend --noacl
 ```
+
+Remember to remove --noacl once you'e set password, etc.
 
 # Lyrion Media Server
 Because I use Fedora Server, SELinux runs by default. To allow SMB shares to be mapped inside Podman, we need to first allow it: 

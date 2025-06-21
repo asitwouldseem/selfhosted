@@ -165,7 +165,7 @@ Woohoo!
 
 # TV Head End
 
-Install firmware 
+Install [firmware](https://gist.github.com/ProfYaffle/654aa5da1983d651d367).
 ```
 cd /lib/firmware
 wget https://github.com/CoreELEC/dvb-firmware/blob/master/firmware/dvb-demod-si2168-d60-01.fw
@@ -176,18 +176,17 @@ Reboot, setup folders for TVHeadEnd, open 9981 and 9982. Then run the container:
 podman run -d
   --hostname=tvh.local
   --name=tvh   
-  --device /dev/dvb   
-  --security-opt label=disable   
-  -p 9981:9981
-  -p 9982:9982   
+  --device /dev/dvb
   -e TZ="Australia/Brisbane"
-  -v "/home/../apps/tvh/data":"/config":z   
-  -v "/home/../apps/tvh/recordings":"/recordings":z
+  -p 9981:9981
+  -p 9982:9982 
+  -v "/home/../apps/tvh":"/var/lib/tvheadend":Z   
+  -v "/home/../apps/tvh/recordings":"/var/lib/tvheadend/recordings":Z
+  --user $(id -u):$(id -g)
+  --tty
+  --userns=host
   --restart unless-stopped
-  --userns=host 
-  -e PUID=0 
-  -e PGID=27 
-lscr.io/linuxserver/tvheadend:latest
+ ghcr.io/tvheadend/tvheadend:master-debian
 ```
 
 # Lyrion Media Server

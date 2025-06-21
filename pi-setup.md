@@ -10,17 +10,18 @@ sudo rpi-update
 
 ### 2. Enable external RTC battery
 Because I use this Pi as a timekeeper, I want to use its external RTC battery. I bought one from [Core Electronics](https://core-electronics.com.au/raspberry-pi-5-rtc-battery.html). Your instructions _may_ vary?
-Edit the bootloader config:
+
+1. Edit the bootloader config:
 
 `sudo -E rpi-eeprom-config --edit`
 
-Adding the following:
+2. Adding the following:
 ```
 POWER_OFF_ON_HALT=1
 WAKE_ON_GPIO=0
 ```
 
-Force a restart and see if it comes back in 20 seconds.
+3. Force a restart and see if it comes back in 20 seconds.
 ```
 echo +20 | sudo tee /sys/class/rtc/rtc0/wakealarm
 sudo halt
